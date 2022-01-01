@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .active {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #0c0c0c;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header-component></header-component>
+        <main>
+            <framework-component></framework-component>
+        </main>
+
+        <footer-component></footer-component>
+
+
+
+        <!-- ===== -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+        <script>
+            // Component
+            Vue.component('header-component', {
+                template: `
+                <header>
+                    <img v-bind:src="image" alt="" width="500">
+                    <p v-text:"message"></p>
+                </header>
+                `,
+                data() {
+                    return {
+                        message: "Hello Vue JS",
+                        image: './images/cat.jpg',
+                    }
+                }
+            })
+
+            Vue.component('footer-component', {
+                template: `
+                <footer>
+                    <p>Copyright &copy; 2020</p>
+                </footer>
+                `
+            })
+
+            Vue.component('framework-component', {
+                template: `
+                    <div>
+                        <h3>Tambah Frameworks</h3>
+                        <p><input type="text" placeholder="Nama Framework" v-on:keyup.enter="submitHandle" v-model="newFrameworks">
+                        </p>
+                        <p v-text="frameworks"></p>
+
+                        <hr>
+                        <p>Frameworks ({{frameworks.length}})</p>
+                        <template v-if="frameworks.length >= 1">
+                            <ul style="list-style: none;">
+                                <li v-for="(framework, index) in frameworks">
+                                    <h3>{{index + 1}}: {{framework}}</h3>
+                                </li>
+                            </ul>
+                        </template>
+
+                        <p v-else>Data tidak boleh kosong</p>
+                </div>
+                `,
+                data() {
+                    return {
+                        frameworks: [],
+                        newFrameworks: 'Django',
+                    }
+                },
+                methods: {
+                    submitHandle() {
+                        this.frameworks.push(this.newFrameworks);
+                        this.newFrameworks = '';
+                    }
+                }
+            })
+
+            const member = {
+                frameworks: [],
+                newFrameworks: "Django",
+            }
+
+            const app = new Vue({
+                el: '#app',
+                data: member,
+                methods: {
+                    submitHandle: (e) => {
+                        // let text = e.target.value
+                        // member.frameworks.unshift(text)
+                        // e.target.value = ""
+                        // input binding   
+                        member.frameworks.unshift(member.newFrameworks)
+                        member.newFrameworks = ""
+                    }
+                },
+
+            })
+        </script>
+</body>
+
+</html>

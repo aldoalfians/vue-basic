@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .active {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #0c0c0c;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <img v-bind:src="image" alt="" width="500">
+        </header>
+
+
+        <!-- v-once: only render the first time -->
+        <h1 v-once>{{!isActive ? `${firstName} ${lastName.toUpperCase()}`
+            : `${firstName} ${lastName}`}}
+        </h1>
+
+        <!-- v-text: get data like as innerText-->
+        <h1 v-text="message.toUpperCase()"></h1>
+
+        <!-- v-html: get data using html like as innerHTML-->
+        <h1 v-html="link"></h1>
+
+        <!-- v-on or @click: like as addEventListener-->
+        <div style="display: flex; gap: 5px;">
+            <button v-on:click="handleInc">increment</button>
+            <span v-text="count">{{console.log(count)}}</span>
+            <button @click="handleDec">decrement</button>
+        </div>
+
+        <!-- v-model: two way data binding  -->
+
+        <div style="margin-top: 10px">
+            <input type="text" v-model="firstName">
+            <input type="text" v-model="lastName">
+            <h1>{{getName()}}</h1>
+            <div>
+                <label>
+                    <input type="checkbox" value="React" v-model="frameworks">
+                    React
+                </label>
+                <label>
+                    <input type="checkbox" value="Vue" v-model="frameworks">
+                    Vue
+                </label>
+                <label>
+                    <input type="checkbox" value="Angular" v-model="frameworks">
+                    Angular
+                </label>
+            </div>
+
+            <!-- v-on:keyup.enter -->
+            <h3>Form Submit</h3>
+            <!-- <p><input type="text" placeholder="Nama Framework" v-on:keyup.enter="submitHandle"></p> -->
+
+            <!-- v-model: using input binding  -->
+            <p><input type="text" placeholder="Nama Framework" v-on:keyup.enter="submitHandle" v-model="newFrameworks">
+            </p>
+
+            <p v-text="frameworks"></p>
+        </div>
+
+        <!-- v-for: looping. v-if, v-else: conditions -->
+
+        <div style="margin-top: 10px">
+            <template v-if="frameworks.length >= 1">
+                <ul style="list-style: none;">
+                    <li v-for="(framework, index) in frameworks">
+                        <h3>{{index + 1}}: {{framework}}</h3>
+                    </li>
+                </ul>
+            </template>
+
+            <p v-else>Data tidak boleh kosong</p>
+
+            <h3>Mencari Bilngan Genap {{numbers}}</h3>
+            <ul>
+                <li v-for="number in findNumEven(numbers)">
+                    {{number}}
+                </li>
+            </ul>
+        </div>
+
+        <!-- v-show: show and disappear display-->
+        <div>
+            <ul v-show="frameworks.length >= 1" style="list-style: none;">
+                <li v-for="(framework, index) in frameworks">
+                    <h3>{{index + 1}}: {{framework}}</h3>
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- ===== -->
+        <!-- <h6>{{setName("Evan", "Dimas")}}</h6> -->
+        <h3>{{num}}</h3>
+        <h3>{{`Bilangan ini bilangan ? ${oddEven}`}}</h3>
+
+        <!-- Class Binding -->
+        <div>
+            <button v-bind:class="{active: menu === 'home' }" @click="menu = 'home' ">Home</button>
+            <button v-bind:class="{active: menu === 'about' }" @click="menu = 'about' ">About</button>
+            <button v-bind:class="{active: menu === 'contact'}" @click="menu = 'contact' ">Contact</button>
+        </div>
+
+        <!-- Using Object Event -->
+        <div style="margin-top: 20px">
+            <a v-bind:class="{active: menu === 'home' }" href="#" @click="changeNavigation('home', $event)">
+                Home
+            </a>
+            <a v-bind:class="{active: menu === 'about' }" href="#" @click="changeNavigation('about', $event)">
+                About
+            </a>
+            <a v-bind:class="{active: menu === 'contact'}" href="#" @click="changeNavigation('contact', $event)">
+                Contact
+            </a>
+        </div>
+
+
+
+        <!-- Event Modifiers -->
+        <!-- <div style="margin-top: 20px">
+            <a v-bind:class="{active: menu === 'home' }" href="#" @click.prevent="changeNavigation('home')">
+                Home
+            </a>
+            <a v-bind:class="{active: menu === 'about' }" href="#" @click.prevent="changeNavigation('about')">
+                About
+            </a>
+            <a v-bind:class="{active: menu === 'contact'}" href="#" @click.prevent="changeNavigation('contact')">
+                Contact
+            </a>
+        </div> -->
+
+
+
+        <!-- ===== -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+        <script>
+            const member = {
+                firstName: "Aldo",
+                lastName: "Alfiansyah",
+                message: "Hi there",
+                isActive: true,
+                qty: 1,
+                price: 1000,
+                num: 3,
+                link: '<a href="https://www.google.com">Google</a>',
+                image: './images/cat.jpg',
+                count: 0,
+                menu: "home",
+                frameworks: [],
+                newFrameworks: "Django",
+                numbers: [1, 2, 3, 4, 5],
+
+            }
+
+            const app = new Vue({
+                el: '#app',
+                data: member,
+                methods: {
+                    getName: function () {
+                        this.name = this.firstName + " " + this.lastName
+                        return this.name
+                    },
+                    setName: function (fn, ln) {
+                        this.firstName = fn
+                        this.lastName = ln
+                        return this.getName()
+                    },
+                    handleInc: function () {
+                        this.count++
+                    },
+
+                    handleDec: function () {
+                        this.count--
+                    },
+                    findNumEven: (num) => {
+                        return num.filter(number => number % 2 === 0)
+                    },
+                    changeNavigation: (mn, e) => {
+                        e.preventDefault()
+                        member.menu = mn
+                    },
+                    submitHandle: (e) => {
+                        // let text = e.target.value
+                        // member.frameworks.unshift(text)
+                        // e.target.value = ""
+                        // input binding   
+                        member.frameworks.unshift(member.newFrameworks)
+                        member.newFrameworks = ""
+                    }
+
+                },
+                // Computed properties
+                computed: {
+                    totalPrice: function () {
+                        return this.qty * this.price
+                    },
+
+                    oddEven: function () {
+                        return this.num % 2 === 0 ? "GENAP" : "GANJIL"
+                    },
+                }
+
+            })
+        </script>
+</body>
+
+</html>
