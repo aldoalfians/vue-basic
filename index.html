@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .active {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #0c0c0c;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header-component title="I'm learning vue js" image="./images/cat.jpg"></header-component>
+
+        <nav>
+            <router-link to="/">Home</router-link>
+            <router-link to="/about">About</router-link>
+            <router-link to="/framework">Frameworks</router-link>
+        </nav>
+
+        <main>
+            <!-- <framework-component v-bind:items="frameworks" v-on:delete-handle="deleteHandle"
+                v-on:submit-handle="submitHandle">
+            </framework-component> -->
+            <!-- <home></home> -->
+            <router-view v-bind:items="frameworks" v-on:delete-handle="deleteHandle" v-on:submit-handle="submitHandle"
+                v-bind:items="frameworks" v-on:delete-handle="deleteHandle" v-on:submit-handle="submitHandle">
+            </router-view>
+        </main>
+
+        <footer-component>
+            <p>Copyright &copy; 2020</p>
+        </footer-component>
+
+    </div>
+
+    <!-- ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script> -->
+    <script>
+        // Component
+        const Home = {
+            template: `
+                    <div>
+                        <h1>Home</h1>
+                    </div>
+                `,
+        }
+        const About = {
+            template: `
+                    <div>
+                        <h1>About</h1>
+                    </div>
+                `,
+        }
+        const Framework = {
+            props: ['items'],
+            template: `
+                <div>
+                        <h3>Tambah Frameworks</h3>
+                        
+                        <form v-on:submit.prevent="submitHandle">
+                            <p><input type="text" placeholder="Frameworks" v-model="frameworks.name"></p>
+                            
+                            <div class="input-group">
+                              <label>Description: </label> <br>
+                              <textarea placeholder="Description" v-model="frameworks.description"></textarea>  
+                            </div>
+
+                           <button type="submit">Submit</button>
+                        </form>
+                        
+                        <hr>
+                        <p>Frameworks ({{items.length}})</p>
+                        <template v-if="items.length">
+                            <ul style="list-style: none;">
+                                <li v-for="(item, i) of items">
+                                    <h3>
+                                    {{i + 1}}: {{item.name}}
+                                    <a href="" v-on:click.prevent="$emit('delete-handle', item.id)">Delete</a>
+                                    </h3>
+                                </li>
+                            </ul>
+                        </template>
+                        <p v-else>Data tidak boleh kosong</p>
+                </div>
+                `,
+            data() {
+                return {
+                    frameworks: {
+                        name: '',
+                        description: '',
+                    },
+                }
+            },
+            methods: {
+                submitHandle: function () {
+                    const data = {
+                        id: uuidv4(),
+                        name: this.frameworks.name,
+                        description: this.frameworks.description,
+                    }
+                    this.$emit('submit-handle', data)
+                    this.frameworks.name = ''
+                    this.frameworks.description = ''
+                },
+
+            }
+        }
+
+        Vue.component('header-component', {
+            props: ['title', 'image',],
+            template: `
+                <header>
+                    <img v-bind:src="image" alt="" width="500">
+                    <h2 v-text="message"></h2>
+                    <p>{{title}}</p>
+                </header>
+                `,
+            data() {
+                return {
+                    message: "Hello Vue JS",
+                    // image: './images/cat.jpg',
+                }
+            }
+        })
+
+        Vue.component('footer-component', {
+            template: `
+                <footer>
+                   <slot></slot>
+                </footer>
+                `
+        })
+
+        // Vue.component('framework-component', {
+
+        // })
+
+        const routes = [{
+            path: '/',
+            component: Home,
+        },
+        {
+            path: '/about',
+            component: About,
+        },
+        {
+            path: '/framework',
+            component: Framework,
+        },
+        ]
+
+        const router = new VueRouter({
+            mode: 'history',
+            routes
+        })
+
+        const member = {
+            frameworks: [
+                {
+                    id: 1,
+                    name: 'Django',
+                    description: 'Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.',
+                },
+                {
+                    id: 2,
+                    name: 'React',
+                    description: 'React is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.',
+                }
+            ],
+            // newFrameworks: "",
+        }
+
+        const app = new Vue({
+            el: '#app',
+            router,
+            components: {
+                'home': Home,
+            },
+            data: member,
+            methods: {
+                submitHandle: (data) => {
+                    // let text = e.target.value
+                    // member.frameworks.push(text)
+                    // e.target.value = ""
+                    // input binding   
+                    // member.frameworks.push(member.newFrameworks)
+                    // member.newFrameworks = ""
+                    member.frameworks.push(data)
+                },
+                deleteHandle: (id) => {
+                    console.log(id)
+                    // member.frameworks.splice(id, 1);
+                    member.frameworks = member.frameworks.filter(item => item.id !== id)
+                }
+
+            },
+
+        })
+    </script>
+</body>
+
+</html>
