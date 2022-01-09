@@ -47,6 +47,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script> -->
     <script>
         // Component
@@ -64,6 +65,40 @@
                     </div>
                 `,
         }
+        const NotFound = {
+            template: `
+                    <div>
+                        <h1>Not Found 404</h1>
+                    </div>
+                `,
+        }
+        const DetailFramework = {
+            template: `
+                    <div>
+                        <h1>Detail Framework</h1>
+                        <img :src=" '/images/' + filterFramework.image" width="300" />
+                        <h2>{{filterFramework.name}} - {{$route.params.id}}</h2>
+                        <p>{{filterFramework.description}}</p>
+                        <router-link to="/">Back</router-link>
+                    </div>
+                `,
+            data() {
+                return {
+                    framework: {},
+                }
+            },
+            created() {
+                this.filterFramework()
+            },
+            methods: {
+                filterFramework() {
+                    let getFramework = JSON.parse(localStorage.getItem('frameworks'));
+                    let id = this.$route.params.id;
+                    let data = getFramework.filter(item => item.id == id)
+                    this.framework = data[0];
+                }
+            },
+        }
         const Framework = {
             props: ['items'],
             template: `
@@ -71,11 +106,21 @@
                         <h3>Tambah Frameworks</h3>
                         
                         <form v-on:submit.prevent="submitHandle">
-                            <p><input type="text" placeholder="Frameworks" v-model="frameworks.name"></p>
+                            <p>
+                                <input type="text" placeholder="Frameworks" v-model="frameworks.name">
+                                <span v-if="errors.name" style="color: red;">{{ errors.name }}</span>
+                            </p>
                             
                             <div class="input-group">
                               <label>Description: </label> <br>
-                              <textarea placeholder="Description" v-model="frameworks.description"></textarea>  
+                              <textarea placeholder="Description" v-model="frameworks.description"></textarea>
+                              <span v-if="errors.description" style="color: red;">{{ errors.description }}</span>  
+                            </div>
+
+                            <div>
+                                <img :src="previewImage" v-if="previewImage" width="200"/>
+                                <label>Masukan Gambar</label>
+                                <input type="file" ref="image" v-on:change="fileHandle" />    
                             </div>
 
                            <button type="submit">Submit</button>
@@ -86,10 +131,13 @@
                         <template v-if="items.length">
                             <ul style="list-style: none;">
                                 <li v-for="(item, i) of items">
+                                    <img :src=" 'images/' + item.image" width="100" />
                                     <h3>
                                     {{i + 1}}: {{item.name}}
                                     <a href="" v-on:click.prevent="$emit('delete-handle', item.id)">Delete</a>
+                                     <router-link :to="'/framework/' + item.id">Detail</router-link>
                                     </h3>
+                                   
                                 </li>
                             </ul>
                         </template>
@@ -101,20 +149,50 @@
                     frameworks: {
                         name: '',
                         description: '',
+                        image: '',
                     },
+                    previewImage: '',
+                    errors: {
+                        name: '',
+                        description: '',
+                        image: '',
+                    }
                 }
             },
             methods: {
                 submitHandle: function () {
-                    const data = {
-                        id: uuidv4(),
-                        name: this.frameworks.name,
-                        description: this.frameworks.description,
+                    if (this.frameworks.name == '') {
+                        this.errors.name = 'Tidak boleh kosong'
+                    } else {
+                        this.errors.name = ''
                     }
-                    this.$emit('submit-handle', data)
-                    this.frameworks.name = ''
-                    this.frameworks.description = ''
+
+                    if (this.frameworks.description == '') {
+                        this.errors.description = 'Tidak boleh kosong'
+                    } else {
+                        this.errors.description = ''
+                    }
+
+                    if (this.frameworks.name && this.frameworks.description) {
+                        const data = {
+                            id: uuidv4(),
+                            name: this.frameworks.name,
+                            description: this.frameworks.description,
+                            image: this.frameworks.image,
+                        }
+                        this.$emit('submit-handle', data)
+                        this.frameworks.name = ''
+                        this.frameworks.description = ''
+                        this.frameworks.image = ''
+                        this.previewImage = ''
+                        this.$refs.image.value = ''
+                    }
                 },
+                fileHandle: function (e) {
+                    const nameImage = e.target.files[0].name
+                    this.frameworks.image = nameImage
+                    this.previewImage = URL.createObjectURL(e.target.files[0])
+                }
 
             }
         }
@@ -160,6 +238,15 @@
             path: '/framework',
             component: Framework,
         },
+        {
+            path: '/framework/:id',
+            component: DetailFramework,
+        },
+        {
+            path: '*',
+            component: NotFound
+
+        }
         ]
 
         const router = new VueRouter({
@@ -168,18 +255,23 @@
         })
 
         const member = {
-            frameworks: [
-                {
-                    id: 1,
-                    name: 'Django',
-                    description: 'Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.',
-                },
-                {
-                    id: 2,
-                    name: 'React',
-                    description: 'React is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.',
-                }
-            ],
+            // frameworks: [
+            //     {
+            //         id: 1,
+            //         name: 'Django',
+            //         description: 'Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.',
+            //         image: "cat.jpg",
+            //     },
+            //     {
+            //         id: 2,
+            //         name: 'React',
+            //         description: 'React is a JavaScript library for building user interfaces. It is maintained by Facebook and a community of individual developers and companies.',
+            //         image: "cat.jpg",
+            //     }
+            // ],
+
+            frameworks: [],
+
             // newFrameworks: "",
         }
 
@@ -190,7 +282,22 @@
                 'home': Home,
             },
             data: member,
+            created() {
+                this.frameworks = JSON.parse(localStorage.getItem('frameworks')) || []
+            },
             methods: {
+                deleteHandle: (id) => {
+                    console.log(id)
+                    // member.frameworks.splice(id, 1);
+                    member.frameworks = member.frameworks.filter(item => item.id !== id)
+                    localStorage.setItem('frameworks', JSON.stringify(member.frameworks))
+                    swal({
+
+                        text: "Data berhasil dihapus",
+                        icon: "warning",
+                        button: "OK",
+                    })
+                },
                 submitHandle: (data) => {
                     // let text = e.target.value
                     // member.frameworks.push(text)
@@ -199,12 +306,14 @@
                     // member.frameworks.push(member.newFrameworks)
                     // member.newFrameworks = ""
                     member.frameworks.push(data)
+                    localStorage.setItem('frameworks', JSON.stringify(member.frameworks))
+                    swal({
+                        title: member.frameworks.name,
+                        text: "Data berhasil ditambahkan",
+                        icon: "success",
+                        button: "OK",
+                    })
                 },
-                deleteHandle: (id) => {
-                    console.log(id)
-                    // member.frameworks.splice(id, 1);
-                    member.frameworks = member.frameworks.filter(item => item.id !== id)
-                }
 
             },
 
